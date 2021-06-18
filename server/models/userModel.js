@@ -1,11 +1,7 @@
 import mongoose from 'mongoose';
 
  // STRETCH GOAL: detailed user info for a user account page
-const userSchema = mongoose.Schema({
-  id: {
-    type: String,
-    required: true,
-  },
+const userSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
@@ -19,14 +15,18 @@ const userSchema = mongoose.Schema({
     required: true,
   },
   password: {
-    type: String, // Figure out how to NOT store in plaintext
+    type: String,
     required: true,
   },
-  taskList: [{
-    type: Object,
-    ref: 'TaskItem'
-  }]
+  tasklist: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'TaskItem',
+    },
+  ],
 });
+
+
 
 const User = mongoose.model('User', userSchema);
 

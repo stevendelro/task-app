@@ -1,52 +1,55 @@
 import mongoose from 'mongoose';
 
-const taskItemSchema = mongoose.Schema({
-  id: {
-    type: String,
-    required: true,
-  },
-  author: {
-    type: String,
-    required: true,
-    ref: 'User'
-  },
-  taskTitle: {
-    type: String,
-    required: true,
-  },
-  details: String,
-  priority: {
-    primary: {
+const taskItemSchema = new mongoose.Schema(
+  {
+    id: {
       type: String,
       required: true,
-      name: String, // low, high, urgent
-      value: Number, // 1, 2, 3
     },
-    secondary: {
+    author: {
       type: String,
       required: true,
-      name: String, // primary, secondary
-      value: Number, // 1, 2
+      ref: 'User',
+    },
+    tasktitle: {
+      type: String,
+      required: true,
+    },
+    details: String,
+    priority: {
+      primary: {
+        type: String,
+        required: true,
+        level: {
+          type: String,
+          default: 'low',
+        }, // low, high, urgent
+        value: {
+          type: Number,
+          default: 1
+        }, // 1, 2, 3
+      },
+      secondary: {
+        type: String,
+        required: true,
+        importance: String, // primary, secondary
+        value: Number, // 1, 2
+      },
+    },
+    completed: {
+      type: Boolean,
+      required: true,
+    },
+    tags: {
+      type: Array,
     },
   },
-  completed: {
-    type: String,
-    required: true,
-  },
-  dateCreated: {
-    type: String,
-    required: true,
-    date: String,
-    timestamp: Date,
-  },
-  dateEdited: {
-    type: String,
-    required: true,
-    date: String,
-    timestamp: Date,
-  },
-  tags: [String],
-});
+  {
+    timestamps: {
+      currentTime: () => Math.floor(Date.now() / 1000),
+    },
+  }
+);
 
 const TaskItem = mongoose.model('TaskItem', taskItemSchema);
 
