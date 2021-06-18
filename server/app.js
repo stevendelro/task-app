@@ -1,8 +1,8 @@
-import express from 'express'
-import mongoose from 'mongoose'
-import cors from 'cors'
-import taskRoute from './routes/taskRoute.js'
-import userRoute from './routes/userRoute.js'
+import express from 'express';
+import mongoose from 'mongoose';
+import cors from 'cors';
+import taskRoute from './routes/taskRoute.js';
+import userRoute from './routes/userRoute.js';
 
 const app = express();
 
@@ -11,7 +11,17 @@ app.use(express.json());
 app.use('/task', taskRoute);
 app.use('/users', userRoute);
 
-const MONGO_SRV = ""
+const MONGO_SRV =
+  'mongodb+srv://steven:thisisapassword@taskapp.1t2az.mongodb.net/task-app?retryWrites=true&w=majority';
 
 
-export default app
+mongoose
+  .connect(MONGO_SRV, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useFindAndModify: false,
+  })
+  .then(() => console.log('DB CONNECTED'))
+  .catch(error => console.error(error.message));
+
+export default app;
