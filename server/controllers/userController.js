@@ -38,7 +38,7 @@ export const createUser = async (req, res, next) => {
 
 export const loginUser = async (req, res, next) => {
   try {
-    const foundUser = await User.findOne({ username: req.body.username });
+    const foundUser = await User.findOne({ email: req.body.email });
     const isVerified = await bcrypt.compare(
       `${req.body.password}`,
       foundUser.password
@@ -47,20 +47,45 @@ export const loginUser = async (req, res, next) => {
       res.locals.currentlyLoggedIn = {
         id: foundUser.id,
         name: foundUser.name,
-        username: foundUser.username,        tasklist: [],
+        username: foundUser.username,
+        tasklist: [],
       };
     }
-    return next()
+    return next();
   } catch (error) {
     console.error('ERROR IN verifyUser, user not found: ', error.message);
   }
 };
 
 export const editUser = async (req, res, next) => {
-  const userToEdit = req.params.id;
+  try {
+    const foundAndUpdatedUser = await User.findByIdAndUpdate(
+      { _id: req.query.id },
+      {
+        name: req.body.name,
+        email: req.body.email,
+        tasklist: [],
+      },
+      { new: true }
+    );
+    res.json({ foundAndUpdatedUser });
+  } catch (error) {
+    res.json({ error }); // TODO: handle this error
+  }
+
   res.send();
 };
 export const deleteUser = async (req, res, next) => {
+  try {
+    const { username, email } = await User.findByIdAndDelete(req.query.id);
+    res.json({
+      status: `The user: "${username}" has been removed from the database.`,
+      username,
+      email,
+    });
+  } catch (error) {
+    console.log(`ERROR IN deleteUser: `, error);
+  }
   const userToDelete = req.params.id;
   res.send();
 };

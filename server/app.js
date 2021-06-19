@@ -7,7 +7,7 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
-app.use('/users', userRoute);
+app.use('/user', userRoute);
 
 const MONGO_SRV =
   'mongodb+srv://steven:thisisapassword@taskapp.1t2az.mongodb.net/task-app?retryWrites=true&w=majority';
