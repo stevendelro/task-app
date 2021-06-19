@@ -11,13 +11,12 @@ router.post('/login', usersController.loginUser, (req, res) => {
   res.status(200).json({ foundUser: res.locals.currentlyLoggedIn });
 });
 
-router.post('/addTask') // figure out how to add tasks to tasklist with refs
-router.get('/:id', usersController.getUserTasks);
-router.patch('/:id', usersController.editUser);
-router.delete('/:id', usersController.deleteUser);
+router.patch('/user/:id', usersController.editUser);
+router.delete('/user/:id', usersController.deleteUser);
 
-router.patch('/tasklist/:taskId', usersController.editTask);
-router.delete('/tasklist/:taskId', usersController.deleteTask);
+router.post('/task', usersController.createTask);
+router.patch('/task/:id', usersController.editTask);
+router.delete('/task/:id', usersController.deleteTask);
 
 
 export default router;

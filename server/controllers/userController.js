@@ -65,11 +65,15 @@ export const deleteUser = async (req, res, next) => {
   res.send();
 };
 
+export const createTask = async (req, res, next) => {
+  const taskToEdit = req.params.id;
+  res.send();
+};
 export const editTask = async (req, res, next) => {
-  const taskToEdit = req.params.taskId;
+  const taskToEdit = req.params.id;
   res.send();
 };
 export const deleteTask = async (req, res, next) => {
-  const taskToDelete = req.params.taskId;
+  const taskToDelete = req.params.id;
   res.send();
 };
