@@ -1,22 +1,15 @@
 import React from 'react';
-import Container from '@material-ui/core/Container';
-import Typography from '@material-ui/core/Typography';
-import Box from '@material-ui/core/Box';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
 import SignUpLogin from '../src/pages/SignUpLogin'
-
-function Copyright() {
-  return (
-    <Typography variant="body2" color="textSecondary" align="center">
-      {'© '}
-        Steven Del Rosario
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
-  );
-}
+import Dashboard from '../src/pages/Dashboard'
 
 export default function App() {
   return (
-    <SignUpLogin />
+    <Router>
+      <Switch>
+        <Route exact path="/" component={SignUpLogin} />
+        <Route path='/dashboard' component={Dashboard}/>
+      </Switch>
+    </Router>
   );
 }
