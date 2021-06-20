@@ -55,7 +55,12 @@ router.post('/login', usersController.loginUser, (req, res) => {
  */
 router.post('/task', usersController.createTask);
 
+/**
+ * deleteTask requires two items sent as query params:
+ *  - userid: req.query.userid
+ *  - taskid: req.query.taskid
+ */
+router.delete('/task/delete', usersController.deleteTask);
 router.patch('/task/:id', usersController.editTask);
-router.delete('/task/:id', usersController.deleteTask);
 
 export default router;

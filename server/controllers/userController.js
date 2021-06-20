@@ -94,36 +94,57 @@ export const createTask = async (req, res, next) => {
     const updatedUser = await User.findByIdAndUpdate(
       { _id: req.query.id },
       {
-        tasklist: [ ...currentUserData.tasklist, {
-          author: req.body.author,
-          tasktitle: req.body.tasktitle,
-          details: req.body.details,
-          priority: {
-            primary: {
-              level: req.body.priority.primary.level,
-              value: req.body.priority.primary.value,
+        tasklist: [
+          ...currentUserData.tasklist,
+          {
+            author: req.body.author,
+            tasktitle: req.body.tasktitle,
+            details: req.body.details,
+            priority: {
+              primary: {
+                level: req.body.priority.primary.level,
+                value: req.body.priority.primary.value,
+              },
+              secondary: {
+                importance: req.body.priority.secondary.importance,
+                value: req.body.priority.secondary.value,
+              },
             },
-            secondary: {
-              importance: req.body.priority.secondary.importance,
-              value: req.body.priority.secondary.value,
-            },
+            completed: req.body.completed,
+            tags: [...req.body.tags],
           },
-          completed: req.body.completed,
-          tags: [...req.body.tags],
-        }],
+        ],
       },
       { new: true, omitUndefined: true }
     );
     res.json({ updatedTasklist: updatedUser.tasklist });
   } catch (error) {
-    console.error('ERROR IN CREATE TASK: ', error)
+    console.error('ERROR IN CREATE TASK: ', error);
   }
 };
+
+export const deleteTask = async (req, res, next) => {
+  try {
+    const user = await User.findById({ _id: req.query.userid });
+    const newTaskList = [];
+    
+    user.tasklist.forEach(item => {
+      if (item.id !== req.query.taskid) newTaskList.push(item);
+    });
+    const { tasklist } = await User.findByIdAndUpdate(
+      { _id: req.query.userid },
+      {
+        tasklist: [...newTaskList],
+      },
+      { new: true, omitUndefined: true }
+    );
+    res.json({ tasklist });
+  } catch (error) {
+    console.error('ERROR IN DELETE TASK: ', error);
+  }
+};
+
 export const editTask = async (req, res, next) => {
   const taskToEdit = req.params.id;
-  res.send();
-};
-export const deleteTask = async (req, res, next) => {
-  const taskToDelete = req.params.id;
   res.send();
 };
