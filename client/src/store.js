@@ -1,7 +1,7 @@
 import { combineReducers, applyMiddleware, compose, createStore } from 'redux';
 import thunk from 'redux-thunk'
-import userReducer from '../src/reducers/userReducer'
-import taskReducer from '../src/reducers/taskReducer'
+import userReducer from './reducers/userReducer'
+import taskReducer from './reducers/taskReducer'
 
 const rootReducer = combineReducers({
   task: taskReducer,

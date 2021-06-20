@@ -2,33 +2,26 @@
   "name": "task-app",
   "version": "0.1.0",
   "private": true,
-  "proxy": "http://localhost:5000",
-  "dependencies": {
-    "@material-ui/core": "4.11.1",
-    "@material-ui/icons": "^4.11.2",
-    "axios": "^0.21.1",
-    "clsx": "latest",
-    "moment": "^2.29.1",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "react-router": "^5.2.0",
-    "react-scripts": "4.0.3",
-    "redux": "^4.1.0",
-    "redux-logger": "^3.0.6",
-    "redux-thunk": "^2.3.0",
-    "uuid": "^8.3.2"
-  },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
+  "dependencies": {
+    "@material-ui/core": "latest",
+    "@material-ui/icons": "^4.11.2",
+    "axios": "^0.21.1",
+    "clsx": "latest",
+    "moment": "^2.29.1",
+    "react": "latest",
+    "react-dom": "latest",
+    "react-router": "^5.2.0",
+    "react-scripts": "latest",
+    "redux": "^4.1.0",
+    "redux-logger": "^3.0.6",
+    "redux-thunk": "^2.3.0",
+    "uuid": "^8.3.2"
   },
   "browserslist": {
     "production": [
