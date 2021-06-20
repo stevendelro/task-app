@@ -22,4 +22,15 @@ mongoose
   .then(() => console.log('DB CONNECTED'))
   .catch(error => console.error(error.message));
 
+app.use((err, req, res, next) => {
+  console.log(`err`, err)
+  const defaultErr = {
+    log: 'Default global error handler triggered',
+    status: 400,
+    error: { err: 'An error occurred processing your request.' },
+  };
+  const errObj = {...defaultErr, ...err};
+  res.status(400).send(errObj.error);
+});
+
 export default app;
