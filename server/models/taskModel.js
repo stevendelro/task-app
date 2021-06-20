@@ -4,6 +4,10 @@ const reqString = {
   type: String,
   required: true,
 };
+const reqNumber = {
+  type: Number,
+  required: true,
+};
 export const taskItemSchema = new mongoose.Schema(
   {
     author: reqString,
@@ -11,22 +15,16 @@ export const taskItemSchema = new mongoose.Schema(
     details: String,
     priority: {
       primary: {
-        type: String,
-        required: true,
         level: {
-          type: String,
-          default: 'low',
-        }, // low, high, urgent
+          type: reqString, // low (1), high (2), urgent (3).
+        }, //  NOTE: make sure to default to "low" client side.
         value: {
-          type: Number,
-          default: 1,
-        }, // 1, 2, 3
+          type: reqNumber, // 1 (low), 2 (high), 3 (urgent)
+        },  // NOTE: make sure to default to "1" client side.
       },
       secondary: {
-        type: String,
-        required: true,
-        importance: String, // primary, secondary
-        value: Number, // 1, 2
+        importance: reqString, // primary, secondary
+        value: reqNumber, // 1, 2
       },
     },
     completed: {
