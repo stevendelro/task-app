@@ -89,10 +89,11 @@ export const deleteUser = async (req, res, next) => {
 };
 
 export const createTask = async (req, res, next) => {
+console.log(`req.body`, req.body)
   try {
-    const currentUserData = await User.findById({ _id: req.query.id });
+    const currentUserData = await User.findById({ _id: req.query.userid });
     const updatedUser = await User.findByIdAndUpdate(
-      { _id: req.query.id },
+      { _id: req.query.userid },
       {
         tasklist: [
           ...currentUserData.tasklist,
@@ -127,7 +128,7 @@ export const deleteTask = async (req, res, next) => {
   try {
     const user = await User.findById({ _id: req.query.userid });
     const newTaskList = [];
-    
+
     user.tasklist.forEach(item => {
       if (item.id !== req.query.taskid) newTaskList.push(item);
     });
@@ -145,6 +146,41 @@ export const deleteTask = async (req, res, next) => {
 };
 
 export const editTask = async (req, res, next) => {
-  const taskToEdit = req.params.id;
-  res.send();
+  try {
+    const user = await User.findById({ _id: req.query.userid });
+    const newTaskList = [];
+
+    user.tasklist.forEach((item, index) => {
+      if (item.id === req.query.taskid) {
+        item = {
+          author: req.body.author,
+          tasktitle: req.body.tasktitle,
+          details: req.body.details,
+          priority: {
+            primary: {
+              level: req.body.priority.primary.level,
+              value: req.body.priority.primary.value,
+            },
+            secondary: {
+              importance: req.body.priority.secondary.importance,
+              value: req.body.priority.secondary.value,
+            },
+          },
+          completed: req.body.completed,
+          tags: [...user.tasklist[index].tags, ...req.body.tags],
+        };
+      }
+      newTaskList.push(item);
+    });
+    const { tasklist } = await User.findByIdAndUpdate(
+      { _id: req.query.userid },
+      {
+        tasklist: [...newTaskList],
+      },
+      { new: true, omitUndefined: true }
+    );
+    res.json({ tasklist });
+  } catch (error) {
+    console.error('ERROR IN DELETE TASK: ', error);
+  }
 };

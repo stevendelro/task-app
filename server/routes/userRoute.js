@@ -36,7 +36,9 @@ router.post('/login', usersController.loginUser, (req, res) => {
   res.status(200).json({ currentlyLoggedIn: res.locals.currentlyLoggedIn });
 });
 /**
- * createTask requires an object with these props:
+ * editTask requires an object with these props:
+ * NOTE: must send userid as a query param as 'userid'
+ * NOTE: must send taskid as a query param as 'taskid'
  *
  *  - author: req.body.author,
  *  - tasktitle: req.body.tasktitle,
@@ -51,16 +53,35 @@ router.post('/login', usersController.loginUser, (req, res) => {
  *  -   },
  *  - },
  *  - completed: req.body.completed,
- *  - tags: [...req.body.tags],
+ *  - tags: [req.body.tags],
+ */
+router.post('/task/edit', usersController.editTask);
+/**
+ * createTask requires an object with these props:
+ * NOTE: must send userId as a query param as 'userid'
+ *
+ *  - author: req.body.author,
+ *  - tasktitle: req.body.tasktitle,
+ *  - details: req.body.details,
+ *  - priority: {
+ *  -   primary: {
+ *  -     level: req.body.priority.primary.level,
+ *  -  *  -   },
+ *  -   secondary: {
+ *  -     importance: req.body.priority.secondary.importance,
+ *  -     value: req.body.priority.secondary.value,
+ *  -   },
+ *  - },
+ *  - completed: req.body.completed,
+ *  - tags: [req.body.tags],
  */
 router.post('/task', usersController.createTask);
-
 /**
  * deleteTask requires two items sent as query params:
  *  - userid: req.query.userid
  *  - taskid: req.query.taskid
  */
 router.delete('/task/delete', usersController.deleteTask);
-router.patch('/task/:id', usersController.editTask);
+
 
 export default router;
