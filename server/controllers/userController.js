@@ -1,20 +1,10 @@
 import User from '../models/userModel.js';
 import bcrypt from 'bcryptjs';
 
-export const getUserAndTasks = async (req, res, next) => {
-  const userToRetrieve = req.params.id;
-  try {
-    const signedInUser = await User.find({ id: userToRetrieve });
-    console.log(`users in getUserAndTasks: `, signedInUser);
-  } catch (error) {
-    console.error('ERROR IN getUserAndTasks: ', error.message);
-  }
-};
 export const createUser = async (req, res, next) => {
   const salt = await bcrypt.genSalt(10);
   const hash = await bcrypt.hash(`${req.body.password}`, salt);
   try {
-    // mongodb create user try/catch error handling
     const newUser = await User.create({
       name: req.body.name,
       username: req.body.username,
@@ -25,8 +15,8 @@ export const createUser = async (req, res, next) => {
     res.locals.newUserId = newUser.id;
     return next();
   } catch (error) {
-    // TODO: make a global error handler, send it an error here.
-    console.error('ERROR IN mongoDB createUser: ', error.message);
+    console.error('ERROR in createUser: ', error.message);
+    return next(error);
   }
 };
 
@@ -47,7 +37,8 @@ export const loginUser = async (req, res, next) => {
     }
     return next();
   } catch (error) {
-    console.error('ERROR IN loginUser, user not found: ', error.message);
+    console.error('ERROR in loginUser, user not found: ', error.message);
+    return next(error);
   }
 };
 
@@ -60,7 +51,7 @@ export const editUser = async (req, res, next) => {
 
   try {
     const foundAndUpdatedUser = await User.findByIdAndUpdate(
-      { _id: req.query.id },
+      { _id: req.query.userid },
       {
         name: req.body.name ? req.body.name : undefined,
         username: req.body.username ? req.body.username : undefined,
@@ -69,79 +60,26 @@ export const editUser = async (req, res, next) => {
       },
       { new: true, omitUndefined: true }
     );
-    res.json(foundAndUpdatedUser);
+    res.locals.foundAndUpdatedUser = foundAndUpdatedUser;
+    return next();
   } catch (error) {
-    res.json({ error }); // TODO: handle this error
+    console.error('ERROR in editUser, user not found: ', error.message);
+    return next(error);
   }
 };
 
 export const deleteUser = async (req, res, next) => {
   try {
-    const { username, email } = await User.findByIdAndDelete(req.query.id);
-    res.json({
-      status: `The user: "${username}" has been removed from the database.`,
+    const { username, email } = await User.findByIdAndDelete(req.query.userid);
+    res.locals.deletedUser = {
+      status: `The user: "${username}" has been removed from the app.`,
       username,
       email,
-    });
+    };
+    return next();
   } catch (error) {
-    console.log(`ERROR IN deleteUser: `, error);
-  }
-};
-
-export const createTask = async (req, res, next) => {
-console.log(`req.body`, req.body)
-  try {
-    const currentUserData = await User.findById({ _id: req.query.userid });
-    const updatedUser = await User.findByIdAndUpdate(
-      { _id: req.query.userid },
-      {
-        tasklist: [
-          ...currentUserData.tasklist,
-          {
-            author: req.body.author,
-            tasktitle: req.body.tasktitle,
-            details: req.body.details,
-            priority: {
-              primary: {
-                level: req.body.priority.primary.level,
-                value: req.body.priority.primary.value,
-              },
-              secondary: {
-                importance: req.body.priority.secondary.importance,
-                value: req.body.priority.secondary.value,
-              },
-            },
-            completed: req.body.completed,
-            tags: [...req.body.tags],
-          },
-        ],
-      },
-      { new: true, omitUndefined: true }
-    );
-    res.json({ updatedTasklist: updatedUser.tasklist });
-  } catch (error) {
-    console.error('ERROR IN CREATE TASK: ', error);
-  }
-};
-
-export const deleteTask = async (req, res, next) => {
-  try {
-    const user = await User.findById({ _id: req.query.userid });
-    const newTaskList = [];
-
-    user.tasklist.forEach(item => {
-      if (item.id !== req.query.taskid) newTaskList.push(item);
-    });
-    const { tasklist } = await User.findByIdAndUpdate(
-      { _id: req.query.userid },
-      {
-        tasklist: [...newTaskList],
-      },
-      { new: true, omitUndefined: true }
-    );
-    res.json({ tasklist });
-  } catch (error) {
-    console.error('ERROR IN DELETE TASK: ', error);
+    console.error('ERROR in deleteUser: ', error.message);
+    return next(error);
   }
 };
 
@@ -151,6 +89,9 @@ export const editTask = async (req, res, next) => {
     const newTaskList = [];
 
     user.tasklist.forEach((item, index) => {
+      if (item.id !== req.query.taskid) {
+        throw { message: `EDIT - TASK ID: "${req.query.taskid}" was not found.` };
+      }
       if (item.id === req.query.taskid) {
         item = {
           author: req.body.author,
@@ -179,8 +120,80 @@ export const editTask = async (req, res, next) => {
       },
       { new: true, omitUndefined: true }
     );
-    res.json({ tasklist });
+    res.locals.tasklistWithEdits = tasklist;
+    return next();
   } catch (error) {
-    console.error('ERROR IN DELETE TASK: ', error);
+    console.error('ERROR in editTask: ', error.message);
+    return next(error);
+  }
+};
+
+export const deleteTask = async (req, res, next) => {
+  let taskIdExists = false;
+  try {
+    const user = await User.findById({ _id: req.query.userid });
+    const newTaskList = [];
+
+    user.tasklist.forEach(item => {
+      if (item.id === req.query.taskid) taskIdExists = true;
+    });
+
+    if (taskIdExists) {
+      user.tasklist.forEach(item => {
+        if (item.id !== req.query.taskid) newTaskList.push(item);
+      });
+      const { tasklist } = await User.findByIdAndUpdate(
+        { _id: req.query.userid },
+        {
+          tasklist: [...newTaskList],
+        },
+        { new: true, omitUndefined: true }
+      );
+      res.locals.tasklistWithTaskDeleted = tasklist;
+      return next();
+    } else {
+      taskIdExists = true // reset taskIdExist flag for future requests.
+      throw { message: `DELETE - TASK ID: "${req.query.taskid}" was not found.` };
+    }
+  } catch (error) {
+    console.error('ERROR in deleteTask: ', error.message);
+    return next(error);
+  }
+};
+
+export const createTask = async (req, res, next) => {
+  try {
+    const currentUserData = await User.findById({ _id: req.query.userid });
+    const updatedUser = await User.findByIdAndUpdate(
+      { _id: req.query.userid },
+      {
+        tasklist: [
+          ...currentUserData.tasklist,
+          {
+            author: req.body.author,
+            tasktitle: req.body.tasktitle,
+            details: req.body.details,
+            priority: {
+              primary: {
+                level: req.body.priority.primary.level,
+                value: req.body.priority.primary.value,
+              },
+              secondary: {
+                importance: req.body.priority.secondary.importance,
+                value: req.body.priority.secondary.value,
+              },
+            },
+            completed: req.body.completed,
+            tags: [...req.body.tags],
+          },
+        ],
+      },
+      { new: true, omitUndefined: true }
+    );
+    res.locals.tasklistWithNewTask = updatedUser.tasklist;
+    return next();
+  } catch (error) {
+    console.error('ERROR in createTask: ', error.message);
+    return next(error);
   }
 };

@@ -15,12 +15,8 @@ export const taskItemSchema = new mongoose.Schema(
     details: String,
     priority: {
       primary: {
-        level: {
-          type: reqString, // low (1), high (2), urgent (3).
-        }, //  NOTE: make sure to default to "low" client side.
-        value: {
-          type: reqNumber, // 1 (low), 2 (high), 3 (urgent)
-        },  // NOTE: make sure to default to "1" client side.
+        level: reqString, // low (1), high (2), urgent (3).
+        value: reqNumber, // 1 (low), 2 (high), 3 (urgent) 
       },
       secondary: {
         importance: reqString, // primary, secondary
