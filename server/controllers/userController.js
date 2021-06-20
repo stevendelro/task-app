@@ -73,9 +73,8 @@ export const editUser = async (req, res, next) => {
   } catch (error) {
     res.json({ error }); // TODO: handle this error
   }
-
-  res.send();
 };
+
 export const deleteUser = async (req, res, next) => {
   try {
     const { username, email } = await User.findByIdAndDelete(req.query.id);
@@ -87,13 +86,38 @@ export const deleteUser = async (req, res, next) => {
   } catch (error) {
     console.log(`ERROR IN deleteUser: `, error);
   }
-  const userToDelete = req.params.id;
-  res.send();
 };
 
 export const createTask = async (req, res, next) => {
-  const taskToEdit = req.params.id;
-  res.send();
+  try {
+    const currentUserData = await User.findById({ _id: req.query.id });
+    const updatedUser = await User.findByIdAndUpdate(
+      { _id: req.query.id },
+      {
+        tasklist: [ ...currentUserData.tasklist, {
+          author: req.body.author,
+          tasktitle: req.body.tasktitle,
+          details: req.body.details,
+          priority: {
+            primary: {
+              level: req.body.priority.primary.level,
+              value: req.body.priority.primary.value,
+            },
+            secondary: {
+              importance: req.body.priority.secondary.importance,
+              value: req.body.priority.secondary.value,
+            },
+          },
+          completed: req.body.completed,
+          tags: [...req.body.tags],
+        }],
+      },
+      { new: true, omitUndefined: true }
+    );
+    res.json({ updatedTasklist: updatedUser.tasklist });
+  } catch (error) {
+    console.error('ERROR IN CREATE TASK: ', error)
+  }
 };
 export const editTask = async (req, res, next) => {
   const taskToEdit = req.params.id;

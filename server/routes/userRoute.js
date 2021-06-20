@@ -13,7 +13,6 @@ const router = express.Router();
 router.post('/', usersController.createUser, (req, res) => {
   res.status(200).json({ createdUserId: res.locals.newUserId });
 });
-
 /**
  * editUser requires:
  *  - req.query.id
@@ -36,8 +35,26 @@ router.delete('/delete', usersController.deleteUser);
 router.post('/login', usersController.loginUser, (req, res) => {
   res.status(200).json({ currentlyLoggedIn: res.locals.currentlyLoggedIn });
 });
-
+/**
+ * createTask requires an object with these props:
+ *
+ *  - author: req.body.author,
+ *  - tasktitle: req.body.tasktitle,
+ *  - details: req.body.details,
+ *  - priority: {
+ *  -   primary: {
+ *  -     level: req.body.priority.primary.level,
+ *  -  *  -   },
+ *  -   secondary: {
+ *  -     importance: req.body.priority.secondary.importance,
+ *  -     value: req.body.priority.secondary.value,
+ *  -   },
+ *  - },
+ *  - completed: req.body.completed,
+ *  - tags: [...req.body.tags],
+ */
 router.post('/task', usersController.createTask);
+
 router.patch('/task/:id', usersController.editTask);
 router.delete('/task/:id', usersController.deleteTask);
 
