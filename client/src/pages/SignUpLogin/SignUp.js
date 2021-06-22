@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
+import * as Yup from 'yup';
+import { useFormik } from 'formik';
+import axios from 'axios';
 import { makeStyles } from '@material-ui/core';
 import TextField from '@material-ui/core/TextField';
 import Grid from '@material-ui/core/Grid';
 import Link from '@material-ui/core/Link';
 import Button from '@material-ui/core/Button';
 import Checkbox from '@material-ui/core/Checkbox';
-
 import Typography from '@material-ui/core/Typography';
 
 const useStyles = makeStyles(theme => ({
@@ -30,13 +32,52 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-function SignUp() {
+const initialValues = {
+  username: '',
+  email: '',
+  password: '',
+  passwordConfirmation: '',
+};
+
+const validationSchema = Yup.object({
+  username: Yup.string().required('Required'),
+  email: Yup.string().email('Enter a valid email').required('Required'),
+  password: Yup.string()
+    .required('No password provided.')
+    .min(6, 'Password must be at least 6 characters.')
+    .matches(/[a-zA-Z0-9]/, 'Password can only contain letters and numbers.'),
+  passwordConfirmation: Yup.string().oneOf(
+    [Yup.ref('password'), null],
+    'Passwords must match'
+  ),
+});
+
+const SignUp = ({ createNewUser, setHasAnAccount, hasAnAccount }) => {
   const classes = useStyles();
   const [checkbox, setCheckBox] = useState(false);
 
   const handleCheck = () => setCheckBox(!checkbox);
+  const handleAlreadyUser = () => setHasAnAccount(!hasAnAccount);
+
+  const onSubmit = async values => {
+    const newUser = await axios.post('/user', {
+      username: values.username,
+      email: values.email,
+      password: values.password,
+      passwordConfirmation: values.passwordConfirmation,
+    });
+    console.log(`newUser`, newUser)
+    // createNewUser goes here.
+  };
+
+  const formik = useFormik({
+    initialValues,
+    onSubmit,
+    validationSchema,
+  });
+
   return (
-    <form className={classes.form}>
+    <form className={classes.form} onSubmit={formik.handleSubmit}>
       <Typography variant="h2" component="h1" gutterBottom>
         Sign Up
       </Typography>
@@ -45,12 +86,22 @@ function SignUp() {
         fullWidth
         label="Username"
         variant="outlined"
+        {...formik.getFieldProps('username')}
+        onChange={formik.handleChange}
+        value={formik.values.username}
+        error={formik.errors.username && Boolean(formik.touched.username)}
+        helperText={formik.touched.username ? formik.errors.username : ''}
       />
       <TextField
         className={classes.emailField}
         fullWidth
         label="Email"
         variant="outlined"
+        {...formik.getFieldProps('email')}
+        onChange={formik.handleChange}
+        value={formik.values.email}
+        error={formik.errors.email && Boolean(formik.touched.email)}
+        helperText={formik.touched.email ? formik.errors.email : ''}
       />
       <Grid
         container
@@ -61,11 +112,28 @@ function SignUp() {
           className={classes.passwordField}
           label="Password"
           variant="outlined"
+          {...formik.getFieldProps('password')}
+          onChange={formik.handleChange}
+          value={formik.values.password}
+          error={formik.errors.password && Boolean(formik.touched.password)}
+          helperText={formik.touched.password ? formik.errors.password : ''}
         />
         <TextField
           className={classes.confirmField}
           label="Confirmation"
           variant="outlined"
+          {...formik.getFieldProps('passwordConfirmation')}
+          onChange={formik.handleChange}
+          value={formik.values.passwordConfirmation}
+          error={
+            formik.errors.passwordConfirmation &&
+            Boolean(formik.touched.passwordConfirmation)
+          }
+          helperText={
+            formik.touched.passwordConfirmation
+              ? formik.errors.passwordConfirmation
+              : ''
+          }
         />
       </Grid>
       <Grid
@@ -76,20 +144,19 @@ function SignUp() {
         <Typography variant="body2" className={classes.loginLink}>
           Remember me{' '}
           <Checkbox
-            checked={checkbox}
             onChange={handleCheck}
             inputProps={{ 'aria-label': 'primary checkbox' }}
           />
         </Typography>
         <Typography variant="body2" className={classes.loginLink}>
-          <Link href="#">Already a user? Log in</Link>
+          <Link onClick={handleAlreadyUser}>Already a user? Log in</Link>
         </Typography>
       </Grid>
-      <Button fullWidth variant="contained" color="secondary">
+      <Button type="submit" fullWidth variant="contained" color="secondary">
         Sign Up
       </Button>
     </form>
   );
-}
+};
 
 export default SignUp;
