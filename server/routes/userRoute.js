@@ -5,7 +5,6 @@ const router = express.Router();
 
 /**
  * createUser requires:
- *  - req.body.name,
  *  - req.body.username,
  *  - req.body.email,
  *  - req.body.password

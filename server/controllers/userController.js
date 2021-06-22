@@ -6,7 +6,6 @@ export const createUser = async (req, res, next) => {
   const hash = await bcrypt.hash(`${req.body.password}`, salt);
   try {
     const newUser = await User.create({
-      name: req.body.name,
       username: req.body.username,
       email: req.body.email,
       password: hash,
@@ -30,7 +29,6 @@ export const loginUser = async (req, res, next) => {
     if (isVerified && foundUser) {
       res.locals.currentlyLoggedIn = {
         id: foundUser.id,
-        name: foundUser.name,
         username: foundUser.username,
         tasklist: [],
       };
@@ -53,7 +51,6 @@ export const editUser = async (req, res, next) => {
     const foundAndUpdatedUser = await User.findByIdAndUpdate(
       { _id: req.query.userid },
       {
-        name: req.body.name ? req.body.name : undefined,
         username: req.body.username ? req.body.username : undefined,
         email: req.body.email ? req.body.email : undefined,
         password: hash ? hash : undefined,

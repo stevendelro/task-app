@@ -8,7 +8,6 @@ const reqString = {
 };
 
 const userSchema = new mongoose.Schema({
-  name: reqString,
   avatar: imgSchema,
   username: reqString,
   email: reqString,
