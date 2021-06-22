@@ -5,9 +5,9 @@ export const createNewUser = user => ({
   payload: user,
 });
 
-export const loginUser = ({ username, password }) => ({
+export const loginUser = user => ({
   type: actions.USER_LOG_IN,
-  payload: { username, password },
+  payload: user,
 });
 
 export const editUser = edits => ({

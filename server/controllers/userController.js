@@ -27,11 +27,7 @@ export const loginUser = async (req, res, next) => {
       foundUser.password
     );
     if (isVerified && foundUser) {
-      res.locals.currentlyLoggedIn = {
-        id: foundUser.id,
-        username: foundUser.username,
-        tasklist: [],
-      };
+      res.locals.currentlyLoggedIn = foundUser;
     }
     return next();
   } catch (error) {

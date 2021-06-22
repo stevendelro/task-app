@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import * as Yup from 'yup';
-import { useFormik } from 'formik';
 import axios from 'axios';
+import { withRouter } from 'react-router';
+import { useFormik } from 'formik';
 import { makeStyles } from '@material-ui/core';
 import TextField from '@material-ui/core/TextField';
 import Checkbox from '@material-ui/core/Checkbox';
@@ -42,19 +43,24 @@ const validationSchema = Yup.object({
     .matches(/[a-zA-Z0-9]/, 'Password can only contain letters and numbers.'),
 });
 
-function Login({ loginUser, setHasAnAccount, hasAnAccount }) {
+function Login({ loginUser, setHasAnAccount, hasAnAccount, history }) {
   const classes = useStyles();
   const [checked, setChecked] = useState(false);
 
   const onSubmit = async values => {
-    const verifiedUser = await axios.post('/user', {
-      username: values.username,
-      email: values.email,
-      password: values.password,
-      passwordConfirmation: values.passwordConfirmation,
-    });
-    console.log(`verifiedUser`, verifiedUser);
-    // loginUser goes here.
+    try {
+      const verifiedUser = await axios.post('/user/login', {
+        username: values.username,
+        email: values.email,
+        password: values.password,
+        passwordConfirmation: values.passwordConfirmation,
+      });
+      loginUser(verifiedUser);
+      history.push('/dashboard');
+    } catch (error) {
+      console.error('ERROR IN LOGIN EXISTING USER: ', error);
+      // Figure out a way to display to the user that an error occured here.
+    }
   };
 
   const formik = useFormik({
@@ -65,8 +71,9 @@ function Login({ loginUser, setHasAnAccount, hasAnAccount }) {
 
   const handleCheck = () => setChecked(!checked);
   const handleNeedsAccount = () => setHasAnAccount(!hasAnAccount);
+
   return (
-    <form className={classes.form}>
+    <form className={classes.form} onSubmit={formik.handleSubmit}>
       <Typography variant="h3" component="h1" gutterBottom>
         Log In
       </Typography>
@@ -109,11 +116,11 @@ function Login({ loginUser, setHasAnAccount, hasAnAccount }) {
           />
         </Typography>
       </Grid>
-      <Button fullWidth variant="contained" color="secondary">
+      <Button type="submit" fullWidth variant="contained" color="secondary">
         Log In
       </Button>
     </form>
   );
 }
 
-export default Login;
+export default withRouter(Login);
