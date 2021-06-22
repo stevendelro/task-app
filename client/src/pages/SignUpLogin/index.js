@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Paper from '@material-ui/core/Paper';
 import Box from '@material-ui/core/Box';
 import Grid from '@material-ui/core/Grid';
 import Container from '@material-ui/core/Container';
 import { makeStyles } from '@material-ui/core/styles';
+import * as actionCreators from '../../actions/userActionCreators';
 import Copyright from '../../components/Copyright';
 import SignUp from './SignUp';
 import Login from './Login';
@@ -31,9 +34,9 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-export default function SignUpLoginPage() {
+function SignUpLoginPage({ createNewUser, loginUser }) {
   const classes = useStyles();
-  const hasAnAccount = false;
+  const [hasAnAccount, setHasAnAccount] = useState(false)
 
   return (
     <Grid container component="main" className={classes.root}>
@@ -49,7 +52,19 @@ export default function SignUpLoginPage() {
         square
         className={classes.formSide}>
         <Container>
-          {hasAnAccount ? <Login /> : <SignUp />}
+          {hasAnAccount ? (
+            <Login
+              loginUser={loginUser}
+              setHasAnAccount={setHasAnAccount}
+              hasAnAccount={hasAnAccount}
+            />
+          ) : (
+            <SignUp
+              createNewUser={createNewUser}
+              setHasAnAccount={setHasAnAccount}
+              hasAnAccount={hasAnAccount}
+            />
+          )}
           <Box mt={5}>
             <Copyright />
           </Box>
@@ -58,3 +73,14 @@ export default function SignUpLoginPage() {
     </Grid>
   );
 }
+
+const mapDispatchToProps = dispatch =>
+  bindActionCreators(
+    {
+      createNewUser: actionCreators.createNewUser,
+      loginUser: actionCreators.loginUser,
+    },
+    dispatch
+  );
+
+export default connect(null, mapDispatchToProps)(SignUpLoginPage);

@@ -11,7 +11,7 @@ const router = express.Router();
  *  - returns a unique ID
  */
 router.post('/', usersController.createUser, (req, res) => {
-  res.status(201).json({ createdUserId: res.locals.newUserId });
+  res.status(201).json({ createdUser: res.locals.newUser });
 });
 
 /**

@@ -3,18 +3,23 @@
 import * as actions from '../actions/actions';
 
 const initialState = {
-  name: '',
   avatar: '',
+  userId: '',
   username: '',
   email: '',
-  password: '',
   tasklist: [],
 };
 
 function userReducer(state = initialState, { type, payload }) {
   switch (type) {
     case actions.USER_SIGN_UP:
-      return state;
+      console.log(`PAYLOAD`, payload)
+      return {
+        ...state,
+        userId: payload._id,
+        username: payload.username,
+        email: payload.email,
+      };
     case actions.USER_LOG_IN:
       return state;
     case actions.USER_LOG_OUT:

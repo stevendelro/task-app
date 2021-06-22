@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import * as Yup from 'yup';
 import { useFormik } from 'formik';
 import axios from 'axios';
+import { withRouter } from 'react-router';
 import { makeStyles } from '@material-ui/core';
 import TextField from '@material-ui/core/TextField';
 import Grid from '@material-ui/core/Grid';
@@ -52,7 +53,7 @@ const validationSchema = Yup.object({
   ),
 });
 
-const SignUp = ({ createNewUser, setHasAnAccount, hasAnAccount }) => {
+const SignUp = ({ createNewUser, setHasAnAccount, hasAnAccount, history }) => {
   const classes = useStyles();
   const [checkbox, setCheckBox] = useState(false);
 
@@ -60,14 +61,19 @@ const SignUp = ({ createNewUser, setHasAnAccount, hasAnAccount }) => {
   const handleAlreadyUser = () => setHasAnAccount(!hasAnAccount);
 
   const onSubmit = async values => {
-    const newUser = await axios.post('/user', {
-      username: values.username,
-      email: values.email,
-      password: values.password,
-      passwordConfirmation: values.passwordConfirmation,
-    });
-    console.log(`newUser`, newUser)
-    // createNewUser goes here.
+    try {
+      const { data } = await axios.post('/user', {
+        username: values.username,
+        email: values.email,
+        password: values.password,
+        passwordConfirmation: values.passwordConfirmation,
+      });
+      createNewUser(data.createdUser);
+      history.push('/dashboard');
+    } catch (error) {
+      console.error('ERROR IN CREATING NEW USER: ', error)
+      // Figure out a way to display to the user that an error occured here.
+    }
   };
 
   const formik = useFormik({
@@ -159,4 +165,4 @@ const SignUp = ({ createNewUser, setHasAnAccount, hasAnAccount }) => {
   );
 };
 
-export default SignUp;
+export default withRouter(SignUp);

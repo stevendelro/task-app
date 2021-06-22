@@ -11,7 +11,7 @@ export const createUser = async (req, res, next) => {
       password: hash,
       tasklist: [],
     });
-    res.locals.newUserId = newUser.id;
+    res.locals.newUser = newUser;
     return next();
   } catch (error) {
     console.error('ERROR in createUser: ', error.message);
