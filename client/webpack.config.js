@@ -2,6 +2,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const path = require('path');
+const webpack = require('webpack');
 
 module.exports = {
   mode: process.env.NODE_ENV,
@@ -11,13 +12,18 @@ module.exports = {
     filename: 'bundle.js',
   },
   devServer: {
+    hot: true,
     publicPath: '/build/',
     contentBase: path.join(__dirname, 'public'),
     proxy: {
       '/user': 'http://localhost:3001',
     },
   },
-  plugins: [new MiniCssExtractPlugin(), new HtmlWebpackPlugin()],
+  plugins: [
+    new webpack.HotModuleReplacementPlugin(),
+    new MiniCssExtractPlugin(),
+    new HtmlWebpackPlugin(),
+  ],
   module: {
     rules: [
       {
@@ -34,6 +40,11 @@ module.exports = {
       {
         test: /\.s[ac]ss$/i,
         use: [MiniCssExtractPlugin.loader, 'css-loader'],
+      },
+      {
+        test: /\.js$/,
+        enforce: 'pre',
+        use: ['source-map-loader'],
       },
     ],
   },
