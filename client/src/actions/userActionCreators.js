@@ -19,3 +19,19 @@ export const deleteUser = id => ({
   type: actions.USER_EDIT,
   payload: id,
 });
+
+export const addNewTask = taskList => ({
+  type: actions.TASK_CREATE,
+  payload: taskList,
+});
+
+export const editTask = (ids, task) => ({
+  type: actions.TASK_EDIT,
+  payload: { ids, task },
+});
+
+export const deleteTask = ({ userid, taskid }) => ({
+  type: actions.TASK_EDIT,
+  payload: { userid, taskid },
+});
+

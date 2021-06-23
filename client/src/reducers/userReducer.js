@@ -13,7 +13,7 @@ const initialState = {
 function userReducer(state = initialState, { type, payload }) {
   switch (type) {
     case actions.USER_SIGN_UP:
-      console.log(`PAYLOAD`, payload)
+      console.log(`PAYLOAD`, payload);
       return {
         ...state,
         userId: payload._id,
@@ -28,7 +28,12 @@ function userReducer(state = initialState, { type, payload }) {
       return state;
     case actions.USER_DELETE:
       return state;
-
+    case actions.TASK_CREATE:
+      return state;
+    case actions.TASK_DELETE:
+      return state;
+    case actions.TASK_EDIT:
+      return state;
     default:
       return state;
   }
