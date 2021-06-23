@@ -21,10 +21,14 @@ function ResponsiveDrawer(props) {
   const classes = useStyles();
   const theme = useTheme();
   const isLargeScreenUp = useMediaQuery(theme.breakpoints.up('lg'));
+  const isSmallScreenDown = useMediaQuery(theme.breakpoints.down('sm'));
+  const isExtraSmallScreenDown = useMediaQuery(theme.breakpoints.down('xs'));
   const [mobileOpen, setMobileOpen] = React.useState(false);
 
   const handleDrawerToggle = () =>  setMobileOpen(!mobileOpen);
   if (isLargeScreenUp) drawerWidth = 500;
+  if (isSmallScreenDown) drawerWidth = 330;
+  if (isExtraSmallScreenDown) drawerWidth = 300;
 
   return (
     <div className={classes.root}>

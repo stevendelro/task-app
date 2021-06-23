@@ -103,7 +103,7 @@ router.delete('/task/delete', usersController.deleteTask, (req, res) => {
  *  - tags: [req.body.tags],
  */
 router.post('/task', usersController.createTask, (req, res) => {
-  res.status(200).json({ tasklistWithNewTask: res.locals.tasklistWithNewTask });
+  res.status(200).json({ tasklist: res.locals.tasklistWithNewTask });
 });
 
 export default router;
