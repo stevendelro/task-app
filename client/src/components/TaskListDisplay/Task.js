@@ -48,7 +48,9 @@ function Task({
     },
     taskItemContainer: {
       paddingLeft: theme.spacing(1),
-      backgroundColor: taskState.completed ? '' : theme.palette.grey[300],
+      backgroundColor: taskState.completed
+        ? theme.palette.grey[300]
+        : theme.palette.common.white,
     },
     titleContainer: {
       paddingLeft: theme.spacing(2),
@@ -73,7 +75,11 @@ function Task({
     taskImportanceRadios: {
       marginRight: theme.spacing(2),
     },
+    editTitle: {
+      color: theme.palette.grey[600],
+    },
     editDetails: {
+      color: theme.palette.grey[600],
       marginLeft: '29px',
       width: '90%',
     },
@@ -105,9 +111,12 @@ function Task({
 
   const handleTitleEdit = event => setEditedTitle(event.target.value);
   const handleDetailsEdit = event => setEditedDetails(event.target.value);
-  const handleTaskComplete = () => toggleTaskComplete(currentTaskId);
   const handleToggleTagEdit = () => setInTagEditMode(!inTagEditMode);
   const handleToggleEdit = () => toggleEditMode(currentTaskId);
+  const handleTaskComplete = () => {
+    setIsComplete(!isComplete);
+    toggleTaskComplete(currentTaskId);
+  };
 
   const handlePrimaryChange = event => {
     setPrimaryValue(Number(event.target.value));
@@ -157,7 +166,7 @@ function Task({
 
   const handleSubmitAllEdits = async () => {
     const taskEdits = {
-      author: userState.username,
+      author: userState.username || 'steven',
       tasktitle: editedTitle,
       details: editedDetails,
       priority: {
@@ -291,6 +300,7 @@ function Task({
                 {userState.currentlyEditing &&
                 currentTaskId === userState.taskInEdit ? (
                   <Input
+                    className={classes.editTitle}
                     value={editedTitle}
                     onChange={handleTitleEdit}
                     placeholder="Edit Task Title"

@@ -30,12 +30,16 @@ export const editTask = (ids, task) => ({
   payload: { ids, task },
 });
 export const toggleEditMode = taskid => ({
-  type: actions.EDIT_MODE,
-  payload: taskid
+  type: actions.TASK_EDIT_MODE,
+  payload: taskid,
+});
+
+export const toggleTaskComplete = taskid => ({
+  type: actions.TASK_TOGGLE_COMPLETE,
+  payload: { taskid },
 });
 
 export const deleteTask = ({ userid, taskid }) => ({
   type: actions.TASK_EDIT,
   payload: { userid, taskid },
 });
-

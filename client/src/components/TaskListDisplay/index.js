@@ -17,7 +17,13 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-export const TaskListDisplay = ({ user, editTask, deleteTask, toggleEditMode }) => {
+export const TaskListDisplay = ({
+  user,
+  editTask,
+  deleteTask,
+  toggleEditMode,
+  toggleTaskComplete,
+}) => {
   const classes = useStyles();
 
   const addTaskMessage = message => (
@@ -32,7 +38,7 @@ export const TaskListDisplay = ({ user, editTask, deleteTask, toggleEditMode }) 
     </Grid>
   );
 
-  const tasklist = tasks.map(task => {
+  const tasklist = user.tasklist.map(task => {
     return (
       <Task
         key={task._id}
@@ -42,10 +48,10 @@ export const TaskListDisplay = ({ user, editTask, deleteTask, toggleEditMode }) 
         editTask={editTask}
         deleteTask={deleteTask}
         toggleEditMode={toggleEditMode}
+        toggleTaskComplete={toggleTaskComplete}
       />
     );
   });
-  console.log(`user`, user.tasklist);
   return <ul>{tasks.length > 0 ? tasklist : addTaskMessage('Add a task')}</ul>;
 };
 
@@ -57,6 +63,7 @@ const mapDispatchToProps = dispatch =>
       editTask: actionCreators.editTask,
       deleteTask: actionCreators.deleteTask,
       toggleEditMode: actionCreators.toggleEditMode,
+      toggleTaskComplete: actionCreators.toggleTaskComplete,
     },
     dispatch
   );
