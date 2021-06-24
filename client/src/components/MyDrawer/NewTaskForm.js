@@ -1,20 +1,19 @@
 import React, { useState } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import axios from 'axios';
-import { addNewTask } from '../../actions/userActionCreators';
 import { makeStyles } from '@material-ui/core/styles';
-import TextField from '@material-ui/core/TextField';
+import axios from 'axios';
 import Button from '@material-ui/core/Button';
-import Radio from '@material-ui/core/Radio';
-import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormLabel from '@material-ui/core/FormLabel';
-import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
-import Box from '@material-ui/core/Box';
-import Chip from '@material-ui/core/Chip';
+import Radio from '@material-ui/core/Radio';
+import RadioGroup from '@material-ui/core/RadioGroup';
+import TextField from '@material-ui/core/TextField';
+import Typography from '@material-ui/core/Typography';
+
+import { addNewTask } from '../../actions/userActionCreators';
 
 const useStyles = makeStyles(theme => ({
   toolbar: theme.mixins.toolbar,
@@ -48,22 +47,18 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const NewTaskForm = ({ addNewTask, userId, username }) => {
-  const classes = useStyles();
   const [taskTitle, setTaskTitle] = useState('');
   const [taskDetails, setTaskDetails] = useState('');
   const [tagString, setTagString] = useState('');
-  const [tagArray, setTagArray] = useState('');
-
+  const [tagArray, setTagArray] = useState([]);
   const [primaryLevel, setPrimaryLevel] = useState('high');
   const [primaryValue, setPrimaryValue] = useState(1);
-
   const [importance, setImportance] = useState(null);
   const [secondaryValue, setSecondaryValue] = useState(null);
+  const classes = useStyles();
 
   const handleTaskTitle = event => {
-    console.log(`event`, event.target.value);
     setTaskTitle(event.target.value);
-    console.log(`taskTitle`, taskTitle);
   };
   const handleTaskDetail = event => {
     setTaskDetails(event.target.value);
@@ -94,22 +89,17 @@ const NewTaskForm = ({ addNewTask, userId, username }) => {
     }
   };
 
-  const handleAddTags = event => {
+  const handleCreateTagString = event => {
     setTagString(event.target.value);
-    // BUG: setTagString is one key behind setting the state.
-    console.log(`tagString: `, tagString);
-    console.log('targetVal: ', event.target.value);
-    const wordArray = tagString.replace(/[ \t]/g, '').split(',');
-    setTagArray(wordArray);
-    console.log(`wordArray`, wordArray);
   };
 
   const handleTaskDataFormat = () => {
     const withoutEmptyStrings = [];
-    tagArray.forEach(tagArrayItem => {
+    const wordArray = tagString.replace(/[ \t]/g, '').split(',');
+    wordArray.forEach(tagArrayItem => {
       if (tagArrayItem.length !== 0) withoutEmptyStrings.push(tagArrayItem);
     });
-    setTagArray(withoutEmptyStrings);
+    setTagArray(tagArray.push(withoutEmptyStrings));
   };
 
   const resetForm = () => {
@@ -146,8 +136,7 @@ const NewTaskForm = ({ addNewTask, userId, username }) => {
           tags: [...tagArray],
         }
       );
-      resetForm()
-      console.log(`task`, tasklist);
+      resetForm();
       addNewTask(tasklist);
     } catch (error) {
       console.error('ERROR IN CREATING A NEW TASK USER: ', error);
@@ -161,6 +150,8 @@ const NewTaskForm = ({ addNewTask, userId, username }) => {
         <Typography variant="h3" component="h1" gutterBottom>
           New task
         </Typography>
+
+        {/* TITLE/DETAIL ENTRY */}
         <TextField
           className={classes.textField}
           fullWidth
@@ -182,6 +173,8 @@ const NewTaskForm = ({ addNewTask, userId, username }) => {
           direction="column"
           justify="center"
           alignItems="flex-start">
+
+          {/* PRIMARY PRIORITY RADIO GROUP */}
           <FormControl className={classes.radioGroup} component="fieldset">
             <FormLabel component="legend">Priority</FormLabel>
             <RadioGroup
@@ -211,6 +204,7 @@ const NewTaskForm = ({ addNewTask, userId, username }) => {
             </RadioGroup>
           </FormControl>
 
+          {/* IMPORTANCE RADIO GROUP */}
           <FormControl className={classes.radioGroup} component="fieldset">
             <FormLabel component="legend">Importance</FormLabel>
             <RadioGroup
@@ -236,14 +230,18 @@ const NewTaskForm = ({ addNewTask, userId, username }) => {
             </RadioGroup>
           </FormControl>
         </Grid>
+
+        {/* TAG FIELD ENTRY */}
         <TextField
           className={classes.tagField}
           fullWidth
           label="Add Tags"
-          onChange={handleAddTags}
+          onChange={handleCreateTagString}
           value={tagString}
           variant="outlined"
         />
+
+        {/* FORM SUBMIT */}
         <Button
           type="submit"
           onClick={handleTaskDataFormat}
