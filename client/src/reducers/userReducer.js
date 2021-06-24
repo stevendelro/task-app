@@ -30,7 +30,7 @@ function userReducer(state = initialState, { type, payload }) {
     case actions.TASK_CREATE:
       return {
         ...state,
-        tasklist: [...state.tasklist, ...payload.data.tasklist],
+        tasklist: [...payload.data.tasklist],
       };
     case actions.TASK_DELETE:
       return state;

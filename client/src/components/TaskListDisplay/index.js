@@ -38,21 +38,26 @@ export const TaskListDisplay = ({
     </Grid>
   );
 
-  const tasklist = user.tasklist.map(task => {
-    return (
-      <Task
-        key={task._id}
-        currentTaskId={task._id}
-        userState={user}
-        taskState={task}
-        editTask={editTask}
-        deleteTask={deleteTask}
-        toggleEditMode={toggleEditMode}
-        toggleTaskComplete={toggleTaskComplete}
-      />
-    );
-  });
-  return <ul>{tasks.length > 0 ? tasklist : addTaskMessage('Add a task')}</ul>;
+  return (
+    <ul>
+      {user.tasklist.length > 0
+        ? user.tasklist.map(task => {
+            return (
+              <Task
+                key={task._id}
+                currentTaskId={task._id}
+                userState={user}
+                taskState={task}
+                editTask={editTask}
+                deleteTask={deleteTask}
+                toggleEditMode={toggleEditMode}
+                toggleTaskComplete={toggleTaskComplete}
+              />
+            );
+          })
+        : addTaskMessage('Add a task')}
+    </ul>
+  );
 };
 
 const mapStateToProps = state => ({ user: state.user });
