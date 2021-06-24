@@ -53,8 +53,8 @@ const NewTaskForm = ({ addNewTask, userId, username }) => {
   const [tagArray, setTagArray] = useState([]);
   const [primaryLevel, setPrimaryLevel] = useState('high');
   const [primaryValue, setPrimaryValue] = useState(1);
-  const [importance, setImportance] = useState(null);
-  const [secondaryValue, setSecondaryValue] = useState(null);
+  const [importance, setImportance] = useState("less");
+  const [secondaryValue, setSecondaryValue] = useState(1);
   const classes = useStyles();
 
   const handleTaskTitle = event => {
@@ -66,16 +66,10 @@ const NewTaskForm = ({ addNewTask, userId, username }) => {
 
   const handlePrimaryChange = event => {
     setPrimaryValue(Number(event.target.value));
-
-    if (event.target.value === 1) {
-      setPrimaryLevel('low');
-    }
-    if (event.target.value === 2) {
-      setPrimaryLevel('high');
-    }
-    if (event.target.value === 3) {
-      setPrimaryLevel('urgent');
-    }
+    if (event.target.value === '1') setPrimaryLevel('low');
+    if (event.target.value === '2') setPrimaryLevel('high');
+    if (event.target.value === '3') setPrimaryLevel('urgent');
+    return;
   };
 
   const handleSecondaryChange = event => {
@@ -87,6 +81,7 @@ const NewTaskForm = ({ addNewTask, userId, username }) => {
       setImportance(event.target.value);
       setSecondaryValue(2);
     }
+    return;
   };
 
   const handleCreateTagString = event => {
@@ -99,7 +94,8 @@ const NewTaskForm = ({ addNewTask, userId, username }) => {
     wordArray.forEach(tagArrayItem => {
       if (tagArrayItem.length !== 0) withoutEmptyStrings.push(tagArrayItem);
     });
-    setTagArray(tagArray.push(withoutEmptyStrings));
+    setTagArray(withoutEmptyStrings);
+    return;
   };
 
   const resetForm = () => {
@@ -110,34 +106,34 @@ const NewTaskForm = ({ addNewTask, userId, username }) => {
     setPrimaryValue(1);
     setImportance('less');
     setSecondaryValue(1);
+    return;
   };
-
-  const HARDCODED_USER_ID = '60d396cd149b838837a497b6';
 
   const handleSubmit = async event => {
     event.preventDefault();
+    const newTask = {
+      author: username,
+      tasktitle: taskTitle,
+      details: taskDetails,
+      priority: {
+        primary: {
+          level: primaryLevel,
+          value: primaryValue,
+        },
+        secondary: {
+          importance: importance,
+          value: secondaryValue,
+        },
+      },
+      tags: tagArray,
+    };
     try {
-      const tasklist = await axios.post(
-        `/user/task?userid=${userId ? userId : HARDCODED_USER_ID}`,
-        {
-          author: username ? username : 'steven', // hardcoded for preview
-          tasktitle: taskTitle,
-          details: taskDetails,
-          priority: {
-            primary: {
-              level: primaryLevel,
-              value: primaryValue,
-            },
-            secondary: {
-              importance: importance,
-              value: secondaryValue,
-            },
-          },
-          tags: [...tagArray],
-        }
+      const updatedTasklist = await axios.post(
+        `/user/task?userid=${userId}`,
+        newTask
       );
       resetForm();
-      addNewTask(tasklist);
+      addNewTask(updatedTasklist);
     } catch (error) {
       console.error('ERROR IN CREATING A NEW TASK USER: ', error);
       // Figure out a way to display to the user that an error occured here.
