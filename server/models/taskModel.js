@@ -16,10 +16,10 @@ export const taskItemSchema = new mongoose.Schema(
     priority: {
       primary: {
         level: reqString, // low (1), high (2), urgent (3).
-        value: reqNumber, // 1 (low), 2 (high), 3 (urgent) 
+        value: reqNumber, // 1 (low), 2 (high), 3 (urgent)
       },
       secondary: {
-        importance: reqString, // primary, secondary
+        importance: reqString, // less, more
         value: reqNumber, // 1, 2
       },
     },

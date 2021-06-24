@@ -80,12 +80,10 @@ export const editTask = async (req, res, next) => {
   try {
     const user = await User.findById({ _id: req.query.userid });
     const newTaskList = [];
-
+    let notFound = true
     user.tasklist.forEach((item, index) => {
-      if (item.id !== req.query.taskid) {
-        throw { message: `EDIT - TASK ID: "${req.query.taskid}" was not found.` };
-      }
       if (item.id === req.query.taskid) {
+        notFound = false
         item = {
           author: req.body.author,
           tasktitle: req.body.tasktitle,
@@ -106,6 +104,9 @@ export const editTask = async (req, res, next) => {
       }
       newTaskList.push(item);
     });
+    if (notFound) {
+      throw { message: `EDIT - TASK ID: "${req.query.taskid}" was not found.` };
+    }
     const { tasklist } = await User.findByIdAndUpdate(
       { _id: req.query.userid },
       {
@@ -176,7 +177,7 @@ export const createTask = async (req, res, next) => {
                 value: req.body.priority.secondary.value,
               },
             },
-            completed: req.body.completed,
+            completed: false,
             tags: [...req.body.tags],
           },
         ],
