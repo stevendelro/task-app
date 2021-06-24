@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { makeStyles, withStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import Accordion from '@material-ui/core/Accordion';
 import AccordionDetails from '@material-ui/core/AccordionDetails';
 import AccordionSummary from '@material-ui/core/AccordionSummary';
@@ -9,16 +9,13 @@ import Button from '@material-ui/core/Button';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
 import Chip from '@material-ui/core/Chip';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
-import TextField from '@material-ui/core/TextField';
 import Grid from '@material-ui/core/Grid';
 import Input from '@material-ui/core/Input';
 import LabelOutlinedIcon from '@material-ui/icons/LabelOutlined';
 import NewReleasesOutlinedIcon from '@material-ui/icons/NewReleasesOutlined';
-import Radio from '@material-ui/core/Radio';
-import RadioGroup from '@material-ui/core/RadioGroup';
 import Typography from '@material-ui/core/Typography';
+import TaskFooter from './TaskFooter';
 
 function Task({
   userState,
@@ -61,19 +58,6 @@ function Task({
       justifyContent: 'center',
       alignContent: 'center',
       height: '32px',
-    },
-    tagEditField: {
-      marginLeft: '45px',
-    },
-    taskPriorityRadios: {
-      marginLeft: '8px',
-      borderRight: '1px solid rgba(0, 0, 0, 0.30)',
-    },
-    taskPriorityRadioGroup: {
-      paddingRight: theme.spacing(2),
-    },
-    taskImportanceRadios: {
-      marginRight: theme.spacing(2),
     },
     editTitle: {
       color: theme.palette.grey[600],
@@ -211,78 +195,7 @@ function Task({
     }
   };
 
-  let renderedTaskFooter;
-  if (inTagEditMode) {
-    renderedTaskFooter = (
-      <TextField
-        className={classes.tagEditField}
-        variant="outlined"
-        label="Edit Tags"
-        value={tagEdits}
-        onChange={event => setTagEdits(event.target.value)}
-      />
-    );
-  } else {
-    renderedTaskFooter = (
-      <div>
-        <FormControl
-          className={classes.taskPriorityRadios}
-          component="fieldset">
-          <RadioGroup
-            row
-            className={classes.taskPriorityRadioGroup}
-            aria-label="priority"
-            name="priority"
-            value={primaryValue}
-            onChange={handlePrimaryChange}>
-            <FormControlLabel
-              value={1}
-              control={<Radio color="secondary" />}
-              label="Low"
-              labelPlacement="start"
-            />
-            <FormControlLabel
-              value={2}
-              control={<Radio color="secondary" />}
-              label="High"
-              labelPlacement="start"
-            />
-            <FormControlLabel
-              value={3}
-              control={<Radio color="secondary" />}
-              label="Urgent"
-              labelPlacement="start"
-            />
-          </RadioGroup>
-        </FormControl>
-        <FormControl
-          className={classes.taskImportanceRadios}
-          component="fieldset">
-          <RadioGroup
-            row
-            aria-label="position"
-            name="position"
-            value={taskImportance}
-            onChange={handleSecondaryChange}>
-            <FormControlLabel
-              value="less"
-              numvalue={1}
-              control={<Radio color="primary" />}
-              label="Less"
-              labelPlacement="start"
-            />
-            <FormControlLabel
-              value="more"
-              numvalue={2}
-              control={<Radio color="primary" />}
-              label="More"
-              labelPlacement="start"
-            />
-          </RadioGroup>
-        </FormControl>
-      </div>
-    );
-  }
+
 
   return (
     <li className={classes.accordian}>
@@ -357,7 +270,15 @@ function Task({
             alignContent="center">
             {userState.currentlyEditing &&
             currentTaskId === userState.taskInEdit ? (
-              renderedTaskFooter
+              <TaskFooter
+                inTagEditMode={inTagEditMode}
+                primaryValue={primaryValue}
+                handlePrimaryChange={handlePrimaryChange}
+                taskImportance={taskImportance}
+                handleSecondaryChange={handleSecondaryChange}
+                tagEdits={tagEdits}
+                setTagEdits={setTagEdits}
+              />
             ) : (
               <div className={classes.chipTagGroup}>
                 {taskState.tags.map((tag, index) => (
