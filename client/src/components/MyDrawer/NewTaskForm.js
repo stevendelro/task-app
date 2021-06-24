@@ -122,16 +122,15 @@ const NewTaskForm = ({ addNewTask, userId, username }) => {
     setSecondaryValue(1);
   };
 
-  const HARDCODED_USER_ID = '60d37a2685024e535e0d3084'
+  const HARDCODED_USER_ID = '60d396cd149b838837a497b6';
 
   const handleSubmit = async event => {
     event.preventDefault();
-    console.log(`userId: `, userId);
     try {
       const tasklist = await axios.post(
-        `/user/task?userid=${HARDCODED_USER_ID}`,
+        `/user/task?userid=${userId ? userId : HARDCODED_USER_ID}`,
         {
-          author: username,
+          author: username ? username : 'steven', // hardcoded for preview
           tasktitle: taskTitle,
           details: taskDetails,
           priority: {
