@@ -88,7 +88,6 @@ function Task({
     },
   }));
   const classes = useStyles();
-  const currentlyEditing = false;
   const { importance } = taskState.priority.secondary;
   const [tagArray, setTagArray] = useState([]);
   const [isComplete, setIsComplete] = useState(false);
@@ -110,17 +109,19 @@ function Task({
     taskState.priority.secondary.value
   );
 
+  const handleToggleEdit = () => toggleEditMode(currentTaskId);
   const handleTitleEdit = event => setEditedTitle(event.target.value);
   const handleDetailsEdit = event => setEditedDetails(event.target.value);
   const handleToggleTagEdit = () => {
-    setInTagEditMode(!inTagEditMode)
+    setInTagEditMode(!inTagEditMode);
     setDisableSubmitOnTaskEdit(!disableSubmitOnTagEdit);
-    return
+    return;
   };
-  const handleToggleEdit = () => toggleEditMode(currentTaskId);
+
   const handleTaskComplete = () => {
     setIsComplete(!isComplete);
     toggleTaskComplete(currentTaskId);
+    return;
   };
 
   const handlePrimaryChange = event => {
@@ -170,6 +171,17 @@ function Task({
     return;
   };
 
+  const handleTaskDelete = async () => {
+    try {
+      const { data } = await axios.delete(
+        `/user/task/delete?userid=${userState.userId}&taskid=${currentTaskId}`
+      );
+      deleteTask(data.tasklistWithTaskDeleted);
+    } catch (error) {
+      console.error('ERROR IN DELETING TASK: ', error);
+    }
+  };
+
   const handleSubmitAllEdits = async () => {
     const taskEdits = {
       author: userState.username || 'steven',
@@ -188,7 +200,6 @@ function Task({
       completed: isComplete,
       tags: [...tagArray],
     };
-    console.log(`taskEdits: `, taskEdits);
     try {
       const { data } = await axios.post(
         `/user/task/edit?userid=${userState.userId}&taskid=${currentTaskId}`,
@@ -393,7 +404,7 @@ function Task({
                 )}
 
                 <Button onClick={handleToggleEdit}>Edit</Button>
-                <Button>Delete</Button>
+                <Button onClick={handleTaskDelete}>Delete</Button>
               </ButtonGroup>
             )}
           </Grid>

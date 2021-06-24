@@ -7,8 +7,8 @@ export default function App() {
   return (
     <Router>
       <Switch>
-        <Route exact path="/" component={Dashboard} />
-        {/* <Route path='/dashboard' component={Dashboard}/> */}
+        <Route exact path="/" component={SignUpLogin} />
+        <Route path="/dashboard" component={Dashboard} />
       </Switch>
     </Router>
   );

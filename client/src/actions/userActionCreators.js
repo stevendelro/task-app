@@ -39,7 +39,7 @@ export const toggleTaskComplete = taskid => ({
   payload: { taskid },
 });
 
-export const deleteTask = ({ userid, taskid }) => ({
+export const deleteTask = tasklist => ({
   type: actions.TASK_EDIT,
-  payload: { userid, taskid },
+  payload: { tasklist },
 });
