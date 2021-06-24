@@ -1,9 +1,9 @@
 ## CURRENT TASK
-
+  - [] Sign up sends a POST request to the backend and creates a new user.
+  - [] Log in sends a POST request to the backend and retrieves a user within the DB.
 
 ## QUEUED UP
   - [] use the loggedin user to set task author.
-  - [] Handle form validation with formik.
   - [] Add a category property to to each task item in the backend.
   - [] set up the front end with a file uploader and figure out
         how to how to store and update images (something to do with multer).
@@ -104,6 +104,8 @@ STRETCH: TIMER STATS FEATURE
   - [x] fix issue with user.tasklist[0].priority.primary not showing up after createTask
   - [x] handle all the controller errors, create a global error handler.
   - [x] properly utilize res.locals
+  - [x] completely remove CRA related code and files. Create and configure my own webpack.
+  - [x] Handle form validation with formik.
 
 
 // dummy task data:
