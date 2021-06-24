@@ -1,8 +1,8 @@
-// import { v4 as uuidv4 } from 'uuid';
-// import moment from 'moment';
 import * as actions from '../actions/actions';
 
 const initialState = {
+  currentlyEditing: false,
+  taskInEdit: '',
   avatar: '',
   userId: '',
   username: '',
@@ -28,7 +28,6 @@ function userReducer(state = initialState, { type, payload }) {
     case actions.USER_DELETE:
       return state;
     case actions.TASK_CREATE:
-      console.log(`TASKLIST PAYLOAD: `, payload)
       return {
         ...state,
         tasklist: [...state.tasklist, ...payload.data.tasklist]
@@ -37,6 +36,12 @@ function userReducer(state = initialState, { type, payload }) {
       return state;
     case actions.TASK_EDIT:
       return state;
+    case actions.EDIT_MODE:
+      return {
+        ...state,
+        currentlyEditing: !state.currentlyEditing,
+        taskInEdit: state.currentlyEditing ? '' : payload,
+      };
     default:
       return state;
   }
