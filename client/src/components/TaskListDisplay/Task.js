@@ -96,6 +96,7 @@ function Task({
   const [tagEdits, setTagEdits] = useState(taskState.tags.join(', '));
   const [editedTitle, setEditedTitle] = useState(taskState.tasktitle);
   const [editedDetails, setEditedDetails] = useState(taskState.details);
+  const [disableSubmitOnTagEdit, setDisableSubmitOnTaskEdit] = useState(false);
   const [primaryLevel, setPrimaryLevel] = useState(
     taskState.priority.primary.level
   );
@@ -111,7 +112,11 @@ function Task({
 
   const handleTitleEdit = event => setEditedTitle(event.target.value);
   const handleDetailsEdit = event => setEditedDetails(event.target.value);
-  const handleToggleTagEdit = () => setInTagEditMode(!inTagEditMode);
+  const handleToggleTagEdit = () => {
+    setInTagEditMode(!inTagEditMode)
+    setDisableSubmitOnTaskEdit(!disableSubmitOnTagEdit);
+    return
+  };
   const handleToggleEdit = () => toggleEditMode(currentTaskId);
   const handleTaskComplete = () => {
     setIsComplete(!isComplete);
@@ -139,6 +144,7 @@ function Task({
   };
 
   const handleTagEditSubmit = () => {
+    setDisableSubmitOnTaskEdit(!disableSubmitOnTagEdit);
     setInTagEditMode(!inTagEditMode);
     const withoutEmptyStrings = [];
     const wordArray = tagEdits.replace(/[ \t]/g, '').split(',');
@@ -367,7 +373,11 @@ function Task({
                   <Button onClick={handleToggleTagEdit}>edit tags</Button>
                 )}
                 <Button onClick={handleCancelEdit}>Cancel</Button>
-                <Button onClick={handleSubmitAllEdits}>Submit</Button>
+                <Button
+                  disabled={disableSubmitOnTagEdit}
+                  onClick={handleSubmitAllEdits}>
+                  Submit
+                </Button>
               </ButtonGroup>
             ) : (
               <ButtonGroup
