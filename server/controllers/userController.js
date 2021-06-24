@@ -99,7 +99,7 @@ export const editTask = async (req, res, next) => {
             },
           },
           completed: req.body.completed,
-          tags: [...user.tasklist[index].tags, ...req.body.tags],
+          tags: [...req.body.tags],
         };
       }
       newTaskList.push(item);
