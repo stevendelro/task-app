@@ -1,23 +1,24 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import Accordion from '@material-ui/core/Accordion';
-import AccordionSummary from '@material-ui/core/AccordionSummary';
 import AccordionDetails from '@material-ui/core/AccordionDetails';
-import Chip from '@material-ui/core/Chip';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import Typography from '@material-ui/core/Typography';
+import AccordionSummary from '@material-ui/core/AccordionSummary';
 import Box from '@material-ui/core/Box';
-import Grid from '@material-ui/core/Grid';
-import ButtonGroup from '@material-ui/core/ButtonGroup';
 import Button from '@material-ui/core/Button';
+import ButtonGroup from '@material-ui/core/ButtonGroup';
+import Chip from '@material-ui/core/Chip';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import FormControl from '@material-ui/core/FormControl';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import TextField from '@material-ui/core/TextField';
+import Grid from '@material-ui/core/Grid';
 import Input from '@material-ui/core/Input';
-import NewReleasesOutlinedIcon from '@material-ui/icons/NewReleasesOutlined';
 import LabelOutlinedIcon from '@material-ui/icons/LabelOutlined';
+import NewReleasesOutlinedIcon from '@material-ui/icons/NewReleasesOutlined';
 import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
-import FormControl from '@material-ui/core/FormControl';
-import FormLabel from '@material-ui/core/FormLabel';
+import Typography from '@material-ui/core/Typography';
 
 function Task({
   userState,
@@ -26,6 +27,7 @@ function Task({
   deleteTask,
   toggleEditMode,
   currentTaskId,
+  toggleTaskComplete,
 }) {
   const useStyles = makeStyles(theme => ({
     accordian: {
@@ -58,15 +60,22 @@ function Task({
       alignContent: 'center',
       height: '32px',
     },
+    tagEditField: {
+      marginLeft: '45px',
+    },
     taskPriorityRadios: {
       marginLeft: '8px',
       borderRight: '1px solid rgba(0, 0, 0, 0.30)',
     },
+    taskPriorityRadioGroup: {
+      paddingRight: theme.spacing(2),
+    },
     taskImportanceRadios: {
-      marginLeft: '16px',
+      marginRight: theme.spacing(2),
     },
     editDetails: {
       marginLeft: '29px',
+      width: '90%',
     },
     taskFooter: {
       margin: theme.spacing(3, 0),
@@ -75,26 +84,37 @@ function Task({
   const classes = useStyles();
   const currentlyEditing = false;
   const { importance } = taskState.priority.secondary;
-  const [primaryLevel, setPrimaryLevel] = useState('high');
-  const [primaryValue, setPrimaryValue] = useState(1);
+  const [tagArray, setTagArray] = useState([]);
+  const [isComplete, setIsComplete] = useState(false);
+  const [inTagEditMode, setInTagEditMode] = useState(false);
+  const [tagEdits, setTagEdits] = useState(taskState.tags.join(', '));
+  const [editedTitle, setEditedTitle] = useState(taskState.tasktitle);
+  const [editedDetails, setEditedDetails] = useState(taskState.details);
+  const [primaryLevel, setPrimaryLevel] = useState(
+    taskState.priority.primary.level
+  );
+  const [primaryValue, setPrimaryValue] = useState(
+    taskState.priority.primary.value
+  );
+  const [taskImportance, setTaskImportance] = useState(
+    taskState.priority.secondary.importance
+  );
+  const [secondaryValue, setSecondaryValue] = useState(
+    taskState.priority.secondary.value
+  );
 
-  const [taskImportance, setTaskImportance] = useState(null);
-  const [secondaryValue, setSecondaryValue] = useState(null);
-
+  const handleTitleEdit = event => setEditedTitle(event.target.value);
+  const handleDetailsEdit = event => setEditedDetails(event.target.value);
+  const handleTaskComplete = () => toggleTaskComplete(currentTaskId);
+  const handleToggleTagEdit = () => setInTagEditMode(!inTagEditMode);
   const handleToggleEdit = () => toggleEditMode(currentTaskId);
 
   const handlePrimaryChange = event => {
     setPrimaryValue(Number(event.target.value));
-
-    if (event.target.value === 1) {
-      setPrimaryLevel('low');
-    }
-    if (event.target.value === 2) {
-      setPrimaryLevel('high');
-    }
-    if (event.target.value === 3) {
-      setPrimaryLevel('urgent');
-    }
+    if (event.target.value === '1') setPrimaryLevel('low');
+    if (event.target.value === '2') setPrimaryLevel('high');
+    if (event.target.value === '3') setPrimaryLevel('urgent');
+    return;
   };
 
   const handleSecondaryChange = event => {
@@ -106,7 +126,136 @@ function Task({
       setTaskImportance(event.target.value);
       setSecondaryValue(2);
     }
+    return;
   };
+
+  const handleTagEditSubmit = () => {
+    setInTagEditMode(!inTagEditMode);
+    const withoutEmptyStrings = [];
+    const wordArray = tagEdits.replace(/[ \t]/g, '').split(',');
+    wordArray.forEach(tagArrayItem => {
+      if (tagArrayItem.length !== 0) withoutEmptyStrings.push(tagArrayItem);
+    });
+    setTagArray(withoutEmptyStrings);
+    return;
+  };
+
+  const handleCancelEdit = () => {
+    handleToggleEdit();
+    setInTagEditMode(false);
+    setTagEdits(taskState.tags.join(', '));
+    setTagArray([]);
+    setIsComplete(false);
+    setEditedTitle(taskState.tasktitle);
+    setEditedDetails(taskState.details);
+    setPrimaryLevel(taskState.priority.primary.level);
+    setPrimaryValue(taskState.priority.primary.value);
+    setTaskImportance(taskState.priority.secondary.importance);
+    setSecondaryValue(taskState.priority.secondary.value);
+    return;
+  };
+
+  const handleSubmitAllEdits = async () => {
+    const taskEdits = {
+      author: userState.username,
+      tasktitle: editedTitle,
+      details: editedDetails,
+      priority: {
+        primary: {
+          level: primaryLevel,
+          value: primaryValue,
+        },
+        secondary: {
+          importance: taskImportance,
+          value: secondaryValue,
+        },
+      },
+      completed: isComplete,
+      tags: [...tagArray],
+    };
+    console.log(`taskEdits: `, taskEdits);
+    try {
+      const updatedTaskList = await axios.post(
+        `/user/task/edit?userid=${userState.userId}&taskid=${currentTaskId}`,
+        taskEdits
+      );
+    } catch (error) {
+      console.error('ERROR IN SUBMITTING TASK EDITS: ', error);
+    }
+  };
+
+  let renderedTaskFooter;
+  if (inTagEditMode) {
+    renderedTaskFooter = (
+      <TextField
+        className={classes.tagEditField}
+        variant="outlined"
+        label="Edit Tags"
+        value={tagEdits}
+        onChange={event => setTagEdits(event.target.value)}
+      />
+    );
+  } else {
+    renderedTaskFooter = (
+      <div>
+        <FormControl
+          className={classes.taskPriorityRadios}
+          component="fieldset">
+          <RadioGroup
+            row
+            className={classes.taskPriorityRadioGroup}
+            aria-label="priority"
+            name="priority"
+            value={primaryValue}
+            onChange={handlePrimaryChange}>
+            <FormControlLabel
+              value={1}
+              control={<Radio color="secondary" />}
+              label="Low"
+              labelPlacement="start"
+            />
+            <FormControlLabel
+              value={2}
+              control={<Radio color="secondary" />}
+              label="High"
+              labelPlacement="start"
+            />
+            <FormControlLabel
+              value={3}
+              control={<Radio color="secondary" />}
+              label="Urgent"
+              labelPlacement="start"
+            />
+          </RadioGroup>
+        </FormControl>
+        <FormControl
+          className={classes.taskImportanceRadios}
+          component="fieldset">
+          <RadioGroup
+            row
+            aria-label="position"
+            name="position"
+            value={taskImportance}
+            onChange={handleSecondaryChange}>
+            <FormControlLabel
+              value="less"
+              numvalue={1}
+              control={<Radio color="primary" />}
+              label="Less"
+              labelPlacement="start"
+            />
+            <FormControlLabel
+              value="more"
+              numvalue={2}
+              control={<Radio color="primary" />}
+              label="More"
+              labelPlacement="start"
+            />
+          </RadioGroup>
+        </FormControl>
+      </div>
+    );
+  }
 
   return (
     <li className={classes.accordian}>
@@ -142,6 +291,8 @@ function Task({
                 {userState.currentlyEditing &&
                 currentTaskId === userState.taskInEdit ? (
                   <Input
+                    value={editedTitle}
+                    onChange={handleTitleEdit}
                     placeholder="Edit Task Title"
                     inputProps={{ 'aria-label': 'description' }}
                   />
@@ -161,6 +312,8 @@ function Task({
           currentTaskId === userState.taskInEdit ? (
             <Input
               className={classes.editDetails}
+              value={editedDetails}
+              onChange={handleDetailsEdit}
               placeholder="Edit Details"
               inputProps={{ 'aria-label': 'description' }}
             />
@@ -176,63 +329,7 @@ function Task({
             alignContent="center">
             {userState.currentlyEditing &&
             currentTaskId === userState.taskInEdit ? (
-              <div>
-                <FormControl
-                  className={classes.taskPriorityRadios}
-                  component="fieldset">
-                  {/* <FormLabel component="legend">Priority</FormLabel> */}
-                  <RadioGroup
-                    row
-                    aria-label="priority"
-                    name="priority"
-                    value={primaryValue}
-                    onChange={handlePrimaryChange}>
-                    <FormControlLabel
-                      value={1}
-                      control={<Radio color="secondary" />}
-                      label="Low"
-                      labelPlacement="left"
-                    />
-                    <FormControlLabel
-                      value={2}
-                      control={<Radio color="secondary" />}
-                      label="High"
-                      labelPlacement="left"
-                    />
-                    <FormControlLabel
-                      value={3}
-                      control={<Radio color="secondary" />}
-                      label="Urgent"
-                      labelPlacement="left"
-                    />
-                  </RadioGroup>
-                </FormControl>
-                <FormControl
-                  className={classes.taskImportanceRadios}
-                  component="fieldset">
-                  <RadioGroup
-                    row
-                    aria-label="position"
-                    name="position"
-                    value={taskImportance}
-                    onChange={handleSecondaryChange}>
-                    <FormControlLabel
-                      value="less"
-                      numvalue={1}
-                      control={<Radio color="primary" />}
-                      label="Less"
-                      labelPlacement="left"
-                    />
-                    <FormControlLabel
-                      value="more"
-                      numvalue={2}
-                      control={<Radio color="primary" />}
-                      label="More"
-                      labelPlacement="left"
-                    />
-                  </RadioGroup>
-                </FormControl>
-              </div>
+              renderedTaskFooter
             ) : (
               <div className={classes.chipTagGroup}>
                 {taskState.tags.map((tag, index) => (
@@ -247,14 +344,20 @@ function Task({
                 ))}
               </div>
             )}
-            {userState.currentlyEditing ? (
+            {userState.currentlyEditing &&
+            currentTaskId === userState.taskInEdit ? (
               <ButtonGroup
                 className={classes.buttonGroup}
                 variant="text"
                 color="primary"
                 aria-label="outlined primary button group">
-                <Button onClick={handleToggleEdit}>Cancel</Button>
-                <Button>Submit</Button>
+                {inTagEditMode ? (
+                  <Button onClick={handleTagEditSubmit}>submit tags</Button>
+                ) : (
+                  <Button onClick={handleToggleTagEdit}>edit tags</Button>
+                )}
+                <Button onClick={handleCancelEdit}>Cancel</Button>
+                <Button onClick={handleSubmitAllEdits}>Submit</Button>
               </ButtonGroup>
             ) : (
               <ButtonGroup
@@ -262,7 +365,12 @@ function Task({
                 variant="text"
                 color="primary"
                 aria-label="outlined primary button group">
-                <Button>Done</Button>
+                {isComplete ? (
+                  <Button onClick={handleTaskComplete}>not done</Button> // Make the accordian close onComplete
+                ) : (
+                  <Button onClick={handleTaskComplete}>Done</Button>
+                )}
+
                 <Button onClick={handleToggleEdit}>Edit</Button>
                 <Button>Delete</Button>
               </ButtonGroup>
