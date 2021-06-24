@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import MyAppBar from '../../components/MyAppbar';
 import MyDrawer from '../../components/MyDrawer';
@@ -6,7 +6,7 @@ import TaskListDisplay from '../../components/TaskListDisplay/';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 
-function ResponsiveDrawer(props) {
+function Dashboard(props) {
   const useStyles = makeStyles(theme => ({
     root: {
       display: 'flex',
@@ -50,4 +50,4 @@ function ResponsiveDrawer(props) {
   );
 }
 
-export default ResponsiveDrawer;
+export default Dashboard;

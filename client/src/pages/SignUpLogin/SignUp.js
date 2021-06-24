@@ -13,7 +13,13 @@ import Typography from '@material-ui/core/Typography';
 
 const useStyles = makeStyles(theme => ({
   form: {
-    padding: theme.spacing(0, 12),
+    padding: theme.spacing(0, 1),
+    [theme.breakpoints.down('sm')]: {
+      padding: theme.spacing(0, 3),
+    },
+    [theme.breakpoints.up('lg')]: {
+      padding: theme.spacing(0, 9),
+    },
   },
   usernameField: {
     paddingBottom: theme.spacing(1),
