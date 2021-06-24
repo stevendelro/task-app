@@ -35,7 +35,10 @@ function userReducer(state = initialState, { type, payload }) {
     case actions.TASK_DELETE:
       return state;
     case actions.TASK_EDIT:
-      return state;
+      return {
+        ...state,
+        tasklist: payload.tasklist
+      };
     case actions.TASK_EDIT_MODE:
       return {
         ...state,

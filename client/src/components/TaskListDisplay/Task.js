@@ -190,10 +190,11 @@ function Task({
     };
     console.log(`taskEdits: `, taskEdits);
     try {
-      const updatedTaskList = await axios.post(
+      const { data } = await axios.post(
         `/user/task/edit?userid=${userState.userId}&taskid=${currentTaskId}`,
         taskEdits
       );
+      editTask(data.tasklistWithEdits);
     } catch (error) {
       console.error('ERROR IN SUBMITTING TASK EDITS: ', error);
     }

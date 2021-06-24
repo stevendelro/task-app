@@ -25,9 +25,9 @@ export const addNewTask = taskList => ({
   payload: taskList,
 });
 
-export const editTask = (ids, task) => ({
+export const editTask = tasklist => ({
   type: actions.TASK_EDIT,
-  payload: { ids, task },
+  payload: { tasklist },
 });
 export const toggleEditMode = taskid => ({
   type: actions.TASK_EDIT_MODE,
