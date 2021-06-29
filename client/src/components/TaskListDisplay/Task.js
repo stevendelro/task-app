@@ -1,21 +1,17 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { makeStyles } from '@material-ui/core/styles';
 import Accordion from '@material-ui/core/Accordion';
 import AccordionDetails from '@material-ui/core/AccordionDetails';
 import AccordionSummary from '@material-ui/core/AccordionSummary';
+import axios from 'axios';
 import Box from '@material-ui/core/Box';
-import Button from '@material-ui/core/Button';
-import ButtonGroup from '@material-ui/core/ButtonGroup';
-import Chip from '@material-ui/core/Chip';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Grid from '@material-ui/core/Grid';
-import Input from '@material-ui/core/Input';
-import LabelOutlinedIcon from '@material-ui/icons/LabelOutlined';
-import NewReleasesOutlinedIcon from '@material-ui/icons/NewReleasesOutlined';
-import Typography from '@material-ui/core/Typography';
-import TaskFooter from './TaskFooter';
+
+import TaskButtonGroup from './TaskButtonGroup';
+import TaskDetails from './TaskDetails';
+import TaskRadioGroup from './TaskRadioGroup';
+import TaskTitleBar from './TaskTitleBar';
 
 function Task({
   userState,
@@ -32,47 +28,17 @@ function Task({
       listStyle: 'none',
       padding: theme.spacing(1, 0),
     },
-    chipTagGroup: {
-      marginLeft: theme.spacing(2),
-      padding: theme.spacing(1, 0),
-    },
-    chipTag: {
-      marginLeft: theme.spacing(1),
-    },
-    buttonGroup: {
-      height: '42px',
-      padding: theme.spacing(0, 3),
-    },
     taskItemContainer: {
       paddingLeft: theme.spacing(1),
       backgroundColor: taskState.completed
         ? theme.palette.grey[300]
         : theme.palette.common.white,
     },
-    titleContainer: {
-      paddingLeft: theme.spacing(2),
-    },
-    titleText: {
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignContent: 'center',
-      height: '32px',
-    },
-    editTitle: {
-      color: theme.palette.grey[600],
-    },
-    editDetails: {
-      color: theme.palette.grey[600],
-      marginLeft: '29px',
-      width: '90%',
-    },
     taskFooter: {
       margin: theme.spacing(3, 0),
     },
   }));
   const classes = useStyles();
-  const { importance } = taskState.priority.secondary;
   const [tagArray, setTagArray] = useState([]);
   const [isComplete, setIsComplete] = useState(false);
   const [inTagEditMode, setInTagEditMode] = useState(false);
@@ -168,7 +134,7 @@ function Task({
 
   const handleSubmitAllEdits = async () => {
     const taskEdits = {
-      author: userState.username || 'steven',
+      author: userState.username || 'steven', // hardcoded 'steven' for development.
       tasktitle: editedTitle,
       details: editedDetails,
       priority: {
@@ -195,7 +161,8 @@ function Task({
     }
   };
 
-
+  const isEditingThisTask =
+    userState.currentlyEditing && currentTaskId === userState.taskInEdit;
 
   return (
     <li className={classes.accordian}>
@@ -203,64 +170,28 @@ function Task({
         {/* SUMMARY */}
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
-          onClick={() => {
-            userState.currentlyEditing ? handleToggleEdit() : null;
-          }}
+          onClick={() =>
+            userState.currentlyEditing ? handleToggleEdit() : null
+          }
           aria-label="Expand"
           aria-controls="additional-actions1-content"
           id="additional-actions1-header">
-          <FormControlLabel
-            aria-label="Acknowledge"
-            onClick={event => {
-              event.stopPropagation();
-            }}
-            onFocus={event => event.stopPropagation()}
-            control={
-              importance.toLowerCase() === 'high' ? (
-                <NewReleasesOutlinedIcon
-                  color={taskState.completed ? 'inherit' : 'primary'}
-                />
-              ) : (
-                <LabelOutlinedIcon
-                  color={taskState.completed ? 'inherit' : 'primary'}
-                />
-              )
-            }
-            label={
-              <div className={classes.titleContainer}>
-                {userState.currentlyEditing &&
-                currentTaskId === userState.taskInEdit ? (
-                  <Input
-                    className={classes.editTitle}
-                    value={editedTitle}
-                    onChange={handleTitleEdit}
-                    placeholder="Edit Task Title"
-                    inputProps={{ 'aria-label': 'description' }}
-                  />
-                ) : (
-                  <Typography className={classes.titleText} variant="body1">
-                    {taskState.tasktitle}
-                  </Typography>
-                )}
-              </div>
-            }
+          <TaskTitleBar
+            taskState={taskState}
+            isEditingThisTask={isEditingThisTask}
+            editedTitle={editedTitle}
+            handleTitleEdit={handleTitleEdit}
           />
         </AccordionSummary>
 
         {/* DETAILS */}
         <AccordionDetails>
-          {userState.currentlyEditing &&
-          currentTaskId === userState.taskInEdit ? (
-            <Input
-              className={classes.editDetails}
-              value={editedDetails}
-              onChange={handleDetailsEdit}
-              placeholder="Edit Details"
-              inputProps={{ 'aria-label': 'description' }}
-            />
-          ) : (
-            <Typography color="textSecondary">{taskState.details}</Typography>
-          )}
+          <TaskDetails
+            isEditingThisTask={isEditingThisTask}
+            editedDetails={editedDetails}
+            handleDetailsEdit={handleDetailsEdit}
+            details={taskState.details}
+          />
         </AccordionDetails>
         <Box className={classes.taskFooter}>
           <Grid
@@ -268,66 +199,30 @@ function Task({
             direction="row"
             justify="space-between"
             alignContent="center">
-            {userState.currentlyEditing &&
-            currentTaskId === userState.taskInEdit ? (
-              <TaskFooter
-                inTagEditMode={inTagEditMode}
-                primaryValue={primaryValue}
-                handlePrimaryChange={handlePrimaryChange}
-                taskImportance={taskImportance}
-                handleSecondaryChange={handleSecondaryChange}
-                tagEdits={tagEdits}
-                setTagEdits={setTagEdits}
-              />
-            ) : (
-              <div className={classes.chipTagGroup}>
-                {taskState.tags.map((tag, index) => (
-                  <Chip
-                    className={classes.chipTag}
-                    key={`tag-${tag}-${index}`}
-                    variant="outlined"
-                    size="small"
-                    label={tag}
-                    color="secondary"
-                  />
-                ))}
-              </div>
-            )}
-            {userState.currentlyEditing &&
-            currentTaskId === userState.taskInEdit ? (
-              <ButtonGroup
-                className={classes.buttonGroup}
-                variant="text"
-                color="primary"
-                aria-label="outlined primary button group">
-                {inTagEditMode ? (
-                  <Button onClick={handleTagEditSubmit}>submit tags</Button>
-                ) : (
-                  <Button onClick={handleToggleTagEdit}>edit tags</Button>
-                )}
-                <Button onClick={handleCancelEdit}>Cancel</Button>
-                <Button
-                  disabled={disableSubmitOnTagEdit}
-                  onClick={handleSubmitAllEdits}>
-                  Submit
-                </Button>
-              </ButtonGroup>
-            ) : (
-              <ButtonGroup
-                className={classes.buttonGroup}
-                variant="text"
-                color="primary"
-                aria-label="outlined primary button group">
-                {isComplete ? (
-                  <Button onClick={handleTaskComplete}>not done</Button> // Make the accordian close onComplete
-                ) : (
-                  <Button onClick={handleTaskComplete}>Done</Button>
-                )}
-
-                <Button onClick={handleToggleEdit}>Edit</Button>
-                <Button onClick={handleTaskDelete}>Delete</Button>
-              </ButtonGroup>
-            )}
+            <TaskRadioGroup
+              inTagEditMode={inTagEditMode}
+              primaryValue={primaryValue}
+              handlePrimaryChange={handlePrimaryChange}
+              taskImportance={taskImportance}
+              handleSecondaryChange={handleSecondaryChange}
+              tagEdits={tagEdits}
+              setTagEdits={setTagEdits}
+              isEditingThisTask={isEditingThisTask}
+              tags={taskState.tags}
+            />
+            <TaskButtonGroup
+              isEditingThisTask={isEditingThisTask}
+              handleTagEditSubmit={handleTagEditSubmit}
+              handleToggleTagEdit={handleToggleTagEdit}
+              handleCancelEdit={handleCancelEdit}
+              disableSubmitOnTagEdit={disableSubmitOnTagEdit}
+              handleSubmitAllEdits={handleSubmitAllEdits}
+              handleTaskComplete={handleTaskComplete}
+              handleToggleEdit={handleToggleEdit}
+              handleTaskDelete={handleTaskDelete}
+              isComplete={isComplete}
+              inTagEditMode={inTagEditMode}
+            />
           </Grid>
         </Box>
       </Accordion>
