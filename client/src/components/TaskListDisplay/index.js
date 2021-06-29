@@ -7,7 +7,6 @@ import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import * as actionCreators from '../../actions/userActionCreators';
 import Task from './Task';
-import { tasks } from './fakeTasks';
 
 const useStyles = makeStyles(theme => ({
   addTaskMessage: {
